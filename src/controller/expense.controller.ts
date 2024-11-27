@@ -43,7 +43,6 @@ export const expenseByDate = asyncWrapper(async (req: Request, res: Response) =>
   if (startDate && endDate) {
     const start = new Date(startDate as string);
     const end = new Date(endDate as string);
-    // Set end date to the end of the day (23:59:59) for inclusive range
     end.setHours(23, 59, 59, 999);
 
     filter.date = {
