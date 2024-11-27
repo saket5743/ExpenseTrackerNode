@@ -50,18 +50,15 @@ export const expenseByDate = asyncWrapper(async (req: Request, res: Response) =>
       $lte: end
     };
   }
-
   if (days) {
     const date = new Date();
     date.setDate(date.getDate() - Number(days));
     filter.date = { $gte: date };
   }
-
   const expense = await Expense.find(filter);
   if (!expense || expense.length === 0) {
     return res.json(new ApiError(EXPENSES_NOT_FOUND, CODE_400));
   }
-
   return res.json(new ApiResponse(CODE_200, expense, SUCCESS, BOOL_TRUE));
 })
 
