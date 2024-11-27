@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 interface IExpense {
   title: string,
   amount: number,
-  category: string
+  category: string,
+  date: Date
 }
 
 const expenseSchema = new mongoose.Schema<IExpense>({
@@ -18,8 +19,12 @@ const expenseSchema = new mongoose.Schema<IExpense>({
   category: {
     type: String,
     required: true
+  },
+  date: {
+    type: Date,
+    required: true
   }
-}, { timestamps: true })
+})
 
 const Expense = mongoose.model("Expense", expenseSchema);
 

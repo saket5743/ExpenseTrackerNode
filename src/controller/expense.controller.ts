@@ -5,11 +5,10 @@ import Expense from "../models/expense.models";
 import ApiError from "../errors/ApiError";
 import { BOOL_TRUE, CODE_200, CODE_400, EXPENSE_FOUND, EXPENSE_NOT_CRT, EXPENSE_UPDTD, EXPENSES_NOT_FOUND, SUCCESS } from "../utils/constants";
 import ApiResponse from "../errors/ApiResponseCode";
-import { title } from "process";
 
 // Creating Expense
 export const createExpense = asyncWrapper(async (req: Request, res: Response) => {
-  const { title, amount, category } = req.body;
+  const { title, amount, category, date } = req.body;
   const expense = await Expense.create(req.body);
   if (!expense) {
     return res.json(new ApiError(EXPENSE_NOT_CRT, CODE_400));
@@ -34,6 +33,37 @@ export const expenseById = asyncWrapper(async (req: Request, res: Response) => {
     return res.json(new ApiError(EXPENSES_NOT_FOUND, CODE_400))
   }
   return res.json(new ApiResponse(CODE_200, expense, EXPENSE_FOUND, BOOL_TRUE))
+})
+
+// Get Expenses by date
+export const expenseByDate = asyncWrapper(async (req: Request, res: Response) => {
+  const { startDate, endDate, days } = req.query;
+  let filter: any = {};
+
+  if (startDate && endDate) {
+    const start = new Date(startDate as string);
+    const end = new Date(endDate as string);
+    // Set end date to the end of the day (23:59:59) for inclusive range
+    end.setHours(23, 59, 59, 999);
+
+    filter.date = {
+      $gte: start,
+      $lte: end
+    };
+  }
+
+  if (days) {
+    const date = new Date();
+    date.setDate(date.getDate() - Number(days));
+    filter.date = { $gte: date };
+  }
+
+  const expense = await Expense.find(filter);
+  if (!expense || expense.length === 0) {
+    return res.json(new ApiError(EXPENSES_NOT_FOUND, CODE_400));
+  }
+
+  return res.json(new ApiResponse(CODE_200, expense, SUCCESS, BOOL_TRUE));
 })
 
 // Update Expenses by Id
